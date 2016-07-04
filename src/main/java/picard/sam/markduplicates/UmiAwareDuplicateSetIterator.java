@@ -7,7 +7,7 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.cram.encoding.NullEncoding;
 import htsjdk.samtools.util.CloseableIterator;
 import javafx.util.Pair;
-import org.testng.annotations.Test;
+//import org.testng.annotations.Test;
 import picard.PicardException;
 
 import java.util.ArrayList;
