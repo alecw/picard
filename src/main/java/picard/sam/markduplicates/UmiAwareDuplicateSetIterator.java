@@ -32,15 +32,18 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
     private Iterator<DuplicateSet> nextSetsIterator;
     private List<List<Integer>> adjacencyList = new ArrayList<>();
     private List<Integer> groups = new ArrayList<>();
-    private int minEditDistance = 2;
+    private int minEditDistance = 1;
+    private int[] observedSequences;
 
     public UmiAwareDuplicateSetIterator(final DuplicateSetIterator wrappedIterator) {
         this.wrappedIterator = wrappedIterator;
         nextSetsIterator = Collections.emptyIterator();
+        observedSequences = new int[(int) Math.pow(4.,10.)];
     }
 
     @Override
     public void close() {
+        System.out.println("Entropy is " + calculateEntropy());
         wrappedIterator.close();
     }
 
@@ -68,9 +71,11 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
             if(records.get(i).getAttribute("RX") == null) {
                 nextSetsIterator = Collections.singleton(set).iterator();
                 return;
+            } else {
+                // count the sequence as being observed
+                observedSequences[sequenceToInt((String) records.get(i).getAttribute("RX"))]++;
             }
         }
-
 
         // Sort records by RX tag
         Collections.sort(records, new Comparator<SAMRecord>() {
@@ -125,12 +130,13 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
         }
 
         // Figure out the number of groups
-        int maxGroups = 1;
-        for(int i = 0;i < groups.size();i++) {
-            if(groups.get(i) > maxGroups) {
-                maxGroups = groups.get(i);
-            }
-        }
+        //int maxGroups = 1;
+        //for(int i = 0;i < groups.size();i++) {
+        //    if(groups.get(i) > maxGroups) {
+        //        maxGroups = groups.get(i);
+        //    }
+        //}
+        int maxGroups = nGroups;
 
         // Construct DuplicateSetList
         List<DuplicateSet> duplicateSetList= new ArrayList<>();
@@ -149,15 +155,15 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
         }
 
         // For each group, create a duplicate set and add it to the list.
-//        System.out.println("Start of Original Duplicate set");
-//        for(int k = 0;k < duplicateSetList.size();k++) {
-//            List<SAMRecord> tmpRecords = duplicateSetList.get(k).getRecords();
-//            System.out.println("Start of sub-duplicate set");
-//            for (int j = 0; j < tmpRecords.size(); j++) {
-//                System.out.println("Duplicate set k = " + k + " " + tmpRecords.get(j).getAttribute("RX"));
-//            }
-//            System.out.println();
-//        }
+        System.out.println("Start of Original Duplicate set");
+        for(int k = 0;k < duplicateSetList.size();k++) {
+            List<SAMRecord> tmpRecords = duplicateSetList.get(k).getRecords();
+            System.out.println("Start of sub-duplicate set");
+            for (int j = 0; j < tmpRecords.size(); j++) {
+                System.out.println("Duplicate set k = " + k + " " + tmpRecords.get(j).getAttribute("RX"));
+            }
+            System.out.println();
+        }
 
         nextSetsIterator = duplicateSetList.iterator();
     }
@@ -253,6 +259,50 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
         }
 
         return oneHot;
+    }
+
+    private int sequenceToInt(String umi) {
+        int value = 0;
+        for(int i = 0;i < umi.length();i++) {
+            value += baseToInt(umi.charAt(i))*4^i;
+        }
+
+        return value;
+
+    }
+
+    private int baseToInt(char c) {
+        if(c == 'A') {
+            return 0;
+        } else
+        if(c == 'T') {
+            return 1;
+        } else
+        if(c == 'C') {
+            return 2;
+        } else
+        if(c == 'G') {
+            return 3;
+        } else {
+            return -1;
+        }
+    }
+
+    private double calculateEntropy() {
+        int sum = 0;
+        // Count total observed sequences
+        for(int i = 0;i < observedSequences.length;i++) {
+            sum += observedSequences[i];
+        }
+
+        // Calculate entropy
+        double entropy = 0.0;
+        for(int i = 0;i < observedSequences.length;i++) {
+            entropy += -((double)observedSequences[i]/sum)*Math.log((double)observedSequences[i]/sum);
+        }
+        entropy /= Math.log(2.0);  // Convert entorpy to bits.
+
+        return entropy;
     }
 
     private String oneHotToUmi(double[][] umiMatrix) {
