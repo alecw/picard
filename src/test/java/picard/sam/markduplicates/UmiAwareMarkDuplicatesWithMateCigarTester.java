@@ -31,13 +31,9 @@ import picard.cmdline.CommandLineProgram;
  * This class is an extension of AbstractMarkDuplicatesCommandLineProgramTester used to test MarkDuplicatesWithMateCigar with SAM files generated on the fly.
  * This performs the underlying tests defined by classes such as see AbstractMarkDuplicatesCommandLineProgramTest and MarkDuplicatesWithMateCigarTest.
  */
-public class UmiAwareMarkDuplicatesWithMateCigarTester extends AbstractMarkDuplicatesCommandLineProgramTester {
+public class UmiAwareMarkDuplicatesWithMateCigarTester extends SimpleMarkDuplicatesWithMateCigarTester {
 
     public UmiAwareMarkDuplicatesWithMateCigarTester() {
-        // NB: to be equivalent to MarkDuplicates we need to use SUM_OF_BASE_QUALITIES
-        super(ScoringStrategy.TOTAL_MAPPED_REFERENCE_LENGTH);
-
-        addArg("MAX_RECORDS_IN_RAM=1000");
     }
 
     @Override

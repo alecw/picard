@@ -29,48 +29,19 @@ import picard.PicardException;
 
 /**
  * This class defines the individual test cases to run. The actual running of the test is done
- * by MarkDuplicatesWithMateCigarTester (see getTester).
- * @author nhomer@broadinstitute.org
+ * by SimpleMarkDuplicatesWithMateCigarTester (see getTester).
+ * @author fleharty@broadinstitute.org
  */
-public class UmiAwareMarkDuplicatesWithMateCigarTest extends MarkDuplicatesWithMateCigarTest {
+public class UmiAwareMarkDuplicatesWithMateCigarTest extends SimpleMarkDuplicatesWithMateCigarTest {
     protected AbstractMarkDuplicatesCommandLineProgramTester getTester() {
         return new UmiAwareMarkDuplicatesWithMateCigarTester();
     }
 
-    // TODO: test program record chaining, including failures. Use MarkDuplicate's facility.
-    // TODO: check if one mate is dup, the other is as well, only if both are mapped
-
-
-    @Override
-    @Test
-    public void testTwoMappedPairsWithSoftClippingFirstOfPairOnlyNoMateCigar() {
-      //super.testTwoMappedPairsWithSoftClippingFirstOfPairOnlyNoMateCigar();
-    }
-
-    @Override
-    @Test
-    public void testTwoFragmentsLargeSoftClipWithMinimumDistanceFailure() {
-       //super.testTwoFragmentsLargeSoftClipWithMinimumDistanceFailure();
-    }
-
-
-    @Override
-    @Test
-    public void testTwoFragmentsLargeSoftClip() {
-        //super.testTwoFragmentsLargeSoftClip();
-    }
-
-
-    @Override
-    @Test
-    public void testTwoFragmentsLargeSoftClipWithMinimumDistanceOK() {
-        //super.testTwoFragmentsLargeSoftClipWithMinimumDistanceOK();
-    }
-
-    // NB: this test should return different results than MarkDuplicatesWithMateCigar, as we have the mate cigar
     @Test
     public void testUmi() {
         final AbstractMarkDuplicatesCommandLineProgramTester tester = getTester();
+
+        tester.setExpectedOpticalDuplicate(0);
         // NB: no duplicates
         // 5'1: 2, 5'2:46+73M=118
         // 5'1: 2, 5'2:51+68M=118

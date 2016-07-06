@@ -155,15 +155,15 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
         }
 
         // For each group, create a duplicate set and add it to the list.
-        System.out.println("Start of Original Duplicate set");
-        for(int k = 0;k < duplicateSetList.size();k++) {
-            List<SAMRecord> tmpRecords = duplicateSetList.get(k).getRecords();
-            System.out.println("Start of sub-duplicate set");
-            for (int j = 0; j < tmpRecords.size(); j++) {
-                System.out.println("Duplicate set k = " + k + " " + tmpRecords.get(j).getAttribute("RX"));
-            }
-            System.out.println();
-        }
+//        System.out.println("Start of Original Duplicate set");
+//        for(int k = 0;k < duplicateSetList.size();k++) {
+//            List<SAMRecord> tmpRecords = duplicateSetList.get(k).getRecords();
+//            System.out.println("Start of sub-duplicate set");
+//            for (int j = 0; j < tmpRecords.size(); j++) {
+//                System.out.println("Duplicate set k = " + k + " " + tmpRecords.get(j).getAttribute("RX"));
+//            }
+//            System.out.println();
+//        }
 
         nextSetsIterator = duplicateSetList.iterator();
     }
@@ -289,16 +289,18 @@ public class UmiAwareDuplicateSetIterator implements CloseableIterator<Duplicate
     }
 
     private double calculateEntropy() {
-        int sum = 0;
+        int totalObservations = 0;
         // Count total observed sequences
         for(int i = 0;i < observedSequences.length;i++) {
-            sum += observedSequences[i];
+            totalObservations += observedSequences[i];
         }
 
         // Calculate entropy
         double entropy = 0.0;
         for(int i = 0;i < observedSequences.length;i++) {
-            entropy += -((double)observedSequences[i]/sum)*Math.log((double)observedSequences[i]/sum);
+            if(observedSequences[i] != 0) {
+                entropy += -((double)observedSequences[i]/totalObservations)*Math.log((double)observedSequences[i]/totalObservations);
+            }
         }
         entropy /= Math.log(2.0);  // Convert entorpy to bits.
 
